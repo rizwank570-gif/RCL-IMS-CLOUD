@@ -24,6 +24,11 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1ff; }
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+
+        /* Custom file input styling (No longer needed, but kept for general consistency) */
+        input[type="file"]::file-selector-button {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-900">
@@ -77,6 +82,7 @@
                 <button onclick="showTab('inward')" class="nav-link px-3 py-2 text-gray-700 hover:text-redcliffe transition w-full text-left md:w-auto">Inward Entry</button>
                 <button onclick="showTab('outward')" class="nav-link px-3 py-2 text-gray-700 hover:text-redcliffe transition w-full text-left md:w-auto">Outward/Issue</button>
                 <button onclick="showTab('inventory')" class="nav-link px-3 py-2 text-gray-700 hover:text-redcliffe transition w-full text-left md:w-auto">Live Inventory</button>
+                <button onclick="showTab('print')" class="nav-link px-3 py-2 text-gray-700 hover:text-redcliffe transition w-full text-left md:w-auto">Printing/Docs</button>
                 <button onclick="showTab('expenses')" class="nav-link px-3 py-2 text-gray-700 hover:text-redcliffe transition w-full text-left md:w-auto">Expenses</button>
             </div>
         </div>
@@ -204,6 +210,7 @@
                 <!-- Hub Master -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <h3 class="text-lg font-bold mb-4">🏢 Hub Master</h3>
+                    
                     <form id="hubForm" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <input type="text" id="hubName" placeholder="Hub Name" class="p-2 border rounded w-full" required>
@@ -229,6 +236,7 @@
                 <!-- Material Master -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <h3 class="text-lg font-bold mb-4">📦 Material Master</h3>
+
                     <form id="materialForm" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <input type="text" id="matName" placeholder="Material Name" class="p-2 border rounded w-full" required>
@@ -314,12 +322,30 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- INWARD HISTORY SECTION WITH EXPORT -->
                 <div class="mt-12 overflow-x-auto">
-                    <h3 class="font-bold mb-4">Cloud Inward History (Last 5)</h3>
+                    <h3 class="font-bold mb-4">Cloud Inward History</h3>
+                    <div class="flex flex-wrap items-end gap-3 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium mb-1">Start Date</label>
+                            <input type="date" id="inwardStartDate" class="p-2 border rounded text-sm w-full">
+                        </div>
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium mb-1">End Date</label>
+                            <input type="date" id="inwardEndDate" class="p-2 border rounded text-sm w-full">
+                        </div>
+                        <button onclick="renderHistory('inward')" class="px-4 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 h-10">Filter</button>
+                        <button onclick="exportInwardHistory()" class="px-4 py-2 bg-redcliffe text-white rounded text-sm hover:bg-red-800 h-10 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export CSV
+                        </button>
+                    </div>
                     <table class="w-full text-xs text-left border" id="inward-history-table">
                         <thead class="bg-gray-50"><tr><th class="p-2">Date</th><th class="p-2">Type</th><th class="p-2">Source</th><th class="p-2">Hub</th><th class="p-2">Items</th></tr></thead>
                         <tbody id="inwardHistoryBody"></tbody>
                     </table>
+                    <p id="inwardHistoryStatus" class="mt-2 text-sm text-gray-500">Showing last 5 entries.</p>
                 </div>
             </div>
         </section>
@@ -373,12 +399,30 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- OUTWARD HISTORY SECTION WITH EXPORT -->
                 <div class="mt-12 overflow-x-auto">
-                    <h3 class="font-bold mb-4">Cloud Outward History (Last 5)</h3>
+                    <h3 class="font-bold mb-4">Cloud Outward History</h3>
+                     <div class="flex flex-wrap items-end gap-3 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium mb-1">Start Date</label>
+                            <input type="date" id="outwardStartDate" class="p-2 border rounded text-sm w-full">
+                        </div>
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium mb-1">End Date</label>
+                            <input type="date" id="outwardEndDate" class="p-2 border rounded text-sm w-full">
+                        </div>
+                        <button onclick="renderHistory('outward')" class="px-4 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 h-10">Filter</button>
+                        <button onclick="exportOutwardHistory()" class="px-4 py-2 bg-redcliffe text-white rounded text-sm hover:bg-red-800 h-10 flex items-center">
+                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export CSV
+                        </button>
+                    </div>
                     <table class="w-full text-xs text-left border" id="outward-history-table">
                         <thead class="bg-gray-50"><tr><th class="p-2">Date</th><th class="p-2">To</th><th class="p-2">Destination</th><th class="p-2">Requested By</th><th class="p-2">Hub</th><th class="p-2">Items</th></tr></thead>
                         <tbody id="outwardHistoryBody"></tbody>
                     </table>
+                    <p id="outwardHistoryStatus" class="mt-2 text-sm text-gray-500">Showing last 5 entries.</p>
                 </div>
             </div>
         </section>
@@ -386,11 +430,17 @@
         <!-- LIVE INVENTORY TAB -->
         <section id="tab-inventory" class="tab-content hidden">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
+                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-3 sm:space-y-0">
                     <h2 class="text-xl font-bold">Live Cloud Inventory</h2>
-                    <select id="inventoryHubFilter" onchange="renderInventory()" class="p-2 border rounded bg-gray-50 hub-select">
-                        <option value="all">All Hubs (Aggregated View)</option>
-                    </select>
+                    <div class="flex space-x-3 w-full sm:w-auto">
+                        <select id="inventoryHubFilter" onchange="renderInventory()" class="p-2 border rounded bg-gray-50 hub-select flex-grow">
+                            <option value="all">All Hubs (Aggregated View)</option>
+                        </select>
+                         <button onclick="exportInventory()" class="px-4 py-2 bg-redcliffe text-white rounded text-sm hover:bg-red-800 flex items-center flex-shrink-0">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export CSV
+                        </button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto border rounded-xl">
                     <table id="inventory-table" class="w-full text-sm">
@@ -400,6 +450,59 @@
                         </thead>
                         <tbody id="inventoryBody" class="divide-y"></tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRINTING/DOCS TAB (NEW) -->
+        <section id="tab-print" class="tab-content hidden">
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Document Generation</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Gate Pass Printing -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h2 class="text-xl font-bold mb-4 text-blue-700 flex items-center space-x-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Gate Pass / Material Transfer Slip
+                    </h2>
+                    <p class="text-gray-600 mb-6 text-sm">Generate a non-returnable Gate Pass for material issue or transfer from a Hub.</p>
+
+                    <form id="gatePassForm" class="space-y-4">
+                        <select id="gpHub" class="w-full p-3 border rounded hub-select" required>
+                            <option value="">Select Issuing Hub</option>
+                        </select>
+                        <input type="text" id="gpDestination" placeholder="Destination (e.g., Client Site, Clinic XYZ)" class="w-full p-3 border rounded" required>
+                        <input type="text" id="gpRequester" placeholder="Requested/Carried By Name" class="w-full p-3 border rounded" required>
+                        <textarea id="gpItems" placeholder="List Items to be included (Qty & Item Name per line, e.g., 50 EDTA Tubes, 1 Printer)" class="w-full p-3 border rounded h-24" required></textarea>
+                        
+                        <button type="button" onclick="printGatePass()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-md">
+                            Print Gate Pass Document (Simulated)
+                        </button>
+                    </form>
+                </div>
+
+                <!-- RDC Printing -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h2 class="text-xl font-bold mb-4 text-orange-700 flex items-center space-x-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        Returnable Delivery Challan (RDC)
+                    </h2>
+                    <p class="text-gray-600 mb-6 text-sm">Generate an RDC for equipment or material that must be returned later.</p>
+
+                    <form id="rdcForm" class="space-y-4">
+                         <select id="rdcHub" class="w-full p-3 border rounded hub-select" required>
+                            <option value="">Select Issuing Hub</option>
+                        </select>
+                        <input type="text" id="rdcDestination" placeholder="Client/Vendor Destination" class="w-full p-3 border rounded" required>
+                        <label class="block text-sm font-medium pt-2">Expected Return Date</label>
+                        <input type="date" id="rdcReturnDate" class="w-full p-3 border rounded" required>
+                        <textarea id="rdcItems" placeholder="List Items (Qty & Item Name per line, e.g., 1 Laptop, 2 Barcode Scanners)" class="w-full p-3 border rounded h-24" required></textarea>
+                        
+                        <button type="button" onclick="printRDC()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition shadow-md">
+                            Print Returnable Challan (Simulated)
+                        </button>
+                    </form>
                 </div>
             </div>
         </section>
@@ -469,8 +572,24 @@
                     </div>
                 </form>
 
+                <!-- EXPENSE HISTORY SECTION WITH EXPORT -->
                 <div class="mt-8 overflow-x-auto">
-                    <h3 class="font-bold mb-4">Cloud Expense History (Last 100 Entries)</h3>
+                    <h3 class="font-bold mb-4">Cloud Expense History</h3>
+                    <div class="flex flex-wrap items-end gap-3 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium mb-1">Start Date</label>
+                            <input type="date" id="expenseStartDate" class="p-2 border rounded text-sm w-full">
+                        </div>
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium mb-1">End Date</label>
+                            <input type="date" id="expenseEndDate" class="p-2 border rounded text-sm w-full">
+                        </div>
+                        <button onclick="renderExpenses(true)" class="px-4 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 h-10">Filter</button>
+                        <button onclick="exportExpenseLedger()" class="px-4 py-2 bg-redcliffe text-white rounded text-sm hover:bg-red-800 h-10 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export CSV
+                        </button>
+                    </div>
                     <table class="w-full text-xs text-left border" id="expense-history-table">
                         <thead class="bg-gray-50">
                             <tr>
@@ -486,6 +605,7 @@
                             <tr><td colspan="6" class="p-4 text-center text-gray-400">Loading expenses...</td></tr>
                         </tbody>
                     </table>
+                     <p id="expenseHistoryStatus" class="mt-2 text-sm text-gray-500">Showing last 100 entries.</p>
                 </div>
             </div>
         </section>
@@ -538,8 +658,15 @@
         function setDefaultDate() {
             const today = new Date().toISOString().split('T')[0];
             const expDate = document.getElementById('expDate');
+            const rdcReturnDate = document.getElementById('rdcReturnDate');
             if (expDate) {
                 expDate.value = today;
+            }
+            if (rdcReturnDate) {
+                // Set RDC return date a week from now as a sensible default
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                rdcReturnDate.value = nextWeek.toISOString().split('T')[0];
             }
         }
 
@@ -563,11 +690,12 @@
 
                 updateDropdowns();
                 renderMasters();
-                renderInventory(); // This updates grandTotalValue and the Inventory tab
-                renderHistory(); // <--- FIX APPLIED HERE
-                renderExpenses(); 
-                updateDashboardStats(); // Updates stat-hubs and stat-items
-                renderDashboardActivity(); // Updates chart and activity feed
+                renderInventory(); 
+                renderHistory('inward'); // Initial render of history tabs (last 5)
+                renderHistory('outward');
+                renderExpenses(false); // Initial render of expenses (last 100)
+                updateDashboardStats(); 
+                renderDashboardActivity(); 
                 toast("Cloud Data Synced");
             } catch (err) {
                 console.error(err);
@@ -590,6 +718,8 @@
             } catch (err) { toast("Error saving master", "error"); }
         }
         
+        // Removed saveBulkMasters, downloadCsvTemplate, parseSimpleCsv, handleCsvUpload
+
         async function logExpense(data) {
             showLoading(true);
             const hubName = hubs.find(h => h.id == data.hubId)?.name || 'Unknown';
@@ -755,7 +885,7 @@
             if(type === 'inward') activeInwardCart.splice(idx, 1); else activeOutwardCart.splice(idx, 1);
             renderCart(type);
         }
-
+        
         // Feature: UI Rendering
         function renderMasters() {
             document.getElementById('hubList').innerHTML = hubs.map(h => `<tr class="border-b"><td class="p-2">${h.name}</td><td class="p-2">${h.location}</td></tr>`).join('');
@@ -889,7 +1019,7 @@
             const chartEl = document.getElementById('stockCategoryChart');
             
             if (totalItems === 0) {
-                chartEl.innerHTML = `<p class="text-lg text-gray-400">Inventory data is currently empty.</p>`;
+                chartEl.innerHTML = `<p class="text-lg text-gray-400">Inventory data is currently empty or loading.</p>`;
                 return;
             }
             
@@ -926,38 +1056,82 @@
             chartHTML += `</div>`;
             chartEl.innerHTML = chartHTML;
         }
-
         
-        function renderExpenses() {
+        // Helper function for history filtering
+        function getDateFilter(type) {
+            const start = document.getElementById(`${type}StartDate`)?.value;
+            const end = document.getElementById(`${type}EndDate`)?.value;
+            return { 
+                start: start ? new Date(start) : null,
+                end: end ? new Date(end) : null
+            };
+        }
+
+        function filterHistory(historyArray, type) {
+            const { start, end } = getDateFilter(type);
+            
+            if (!start && !end) {
+                return historyArray;
+            }
+
+            return historyArray.filter(item => {
+                // Assuming date is stored as "DD/MM/YYYY HH:MM:SS" or similar, use only date part for comparison
+                const itemDate = new Date(item.date.split(' ')[0]); 
+                
+                const adjustedEnd = end ? new Date(end) : null;
+                if (adjustedEnd) adjustedEnd.setHours(23, 59, 59, 999);
+
+                const isAfterStart = start ? itemDate >= start : true;
+                const isBeforeEnd = adjustedEnd ? itemDate <= adjustedEnd : true;
+                
+                return isAfterStart && isBeforeEnd;
+            });
+        }
+        
+        function renderExpenses(applyFilter = false) {
             const body = document.getElementById('expenseHistoryBody');
-            if (expenseLedger.length === 0) {
+            const statusEl = document.getElementById('expenseHistoryStatus');
+            
+            let expenses = expenseLedger;
+            let limit = 100; // Default limit for display
+            let statusText = `Showing last ${limit} entries.`;
+
+            if (applyFilter) {
+                expenses = filterHistory(expenseLedger, 'expense');
+                if (expenses.length > 0) {
+                     limit = expenses.length;
+                     statusText = `Showing ${expenses.length} entries matching filter.`;
+                } else {
+                     statusText = `No entries matching filter.`;
+                }
+            }
+            
+            statusEl.innerText = statusText;
+
+            if (expenses.length === 0 && applyFilter) {
+                body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">No expenses logged yet matching the filter criteria.</td></tr>`;
+                return;
+            } else if (expenses.length === 0) {
                 body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">No expenses logged yet.</td></tr>`;
                 return;
             }
-            
-            const isURL = (str) => {
-                // Simple URL check for display purposes
-                return str && (str.startsWith('http://') || str.startsWith('https://'));
-            };
 
+            const isURL = (str) => { return str && (str.startsWith('http://') || str.startsWith('https://')); };
 
-            body.innerHTML = expenseLedger.slice(0, 100).map(e => {
+            body.innerHTML = expenses.slice(0, limit).map(e => {
                 const amount = parseFloat(e.amount);
                 let descriptionCell = e.description;
 
-                // Check for transportation details and format description
                 if (e.category === 'Material Transportation' && e.fromAddress && e.toAddress) {
                     descriptionCell = `Route: ${e.fromAddress} <span class="text-gray-400">-></span> ${e.toAddress} <br><span class="text-xs text-gray-500">${e.description}</span>`;
                 }
                 
-                // Handle Invoice Link/Ref
                 let invoiceCellContent;
                 if (e.invoiceId && isURL(e.invoiceId)) {
                     invoiceCellContent = `<a href="${e.invoiceId}" target="_blank" class="text-blue-600 hover:text-blue-800 underline font-semibold text-xs">View Link</a>`;
                 } else {
                     invoiceCellContent = `<span class="font-mono text-xs">${e.invoiceId || 'N/A'}</span>`;
                 }
-
 
                 return `<tr class="border-b hover:bg-red-50">
                     <td class="p-2 whitespace-nowrap">${e.date}</td>
@@ -971,28 +1145,41 @@
         }
 
 
-        function renderHistory() {
-            // FIX: Added checks for empty arrays and robust property access with fallbacks.
-            const inwardBody = document.getElementById('inwardHistoryBody');
-            if (inwardHistory.length === 0) {
-                inwardBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">No inward history found.</td></tr>`;
+        function renderHistory(type) {
+            const history = type === 'inward' ? inwardHistory : outwardHistory;
+            const bodyId = type === 'inward' ? 'inwardHistoryBody' : 'outwardHistoryBody';
+            const statusId = type === 'inward' ? 'inwardHistoryStatus' : 'outwardHistoryStatus';
+            const colSpan = type === 'inward' ? 5 : 6;
+
+            const filteredHistory = filterHistory(history, type);
+            let limit = (filteredHistory.length > 0 && filteredHistory.length < 5) || filteredHistory.length === history.length ? filteredHistory.length : 5;
+            
+            // If filtered, show all results. If not filtered, show only the last 5 (default UI view).
+            if (filteredHistory.length < history.length) {
+                 limit = filteredHistory.length;
+                 document.getElementById(statusId).innerText = `Showing ${filteredHistory.length} entries matching filter.`;
             } else {
-                // Assuming properties: date, type (transactionType), sourceInfo, hubName, items
-                inwardBody.innerHTML = inwardHistory.slice(0, 5).map(h => `<tr class="border-b hover:bg-gray-50">
+                 document.getElementById(statusId).innerText = `Showing last 5 entries.`;
+            }
+
+            const historySlice = filteredHistory.slice(0, limit);
+            const body = document.getElementById(bodyId);
+
+            if (historySlice.length === 0) {
+                body.innerHTML = `<tr><td colspan="${colSpan}" class="p-4 text-center text-gray-400">No history found${filteredHistory.length < history.length ? ' matching the filters.' : '.'}</td></tr>`;
+                return;
+            } 
+            
+            if (type === 'inward') {
+                body.innerHTML = historySlice.map(h => `<tr class="border-b hover:bg-gray-50">
                     <td class="p-2 whitespace-nowrap">${h.date || 'N/A'}</td>
                     <td class="p-2">${h.type || 'N/A'}</td>
                     <td class="p-2">${h.sourceInfo || 'N/A'}</td>
                     <td class="p-2">${h.hubName || 'Unknown Hub'}</td>
                     <td class="p-2">${h.items || 0}</td>
                 </tr>`).join('');
-            }
-
-            const outwardBody = document.getElementById('outwardHistoryBody');
-            if (outwardHistory.length === 0) {
-                outwardBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">No outward history found.</td></tr>`;
-            } else {
-                // Assuming properties: date, to (destination type), dest (name/code), req (requested by), hub (issuing hub name), items
-                outwardBody.innerHTML = outwardHistory.slice(0, 5).map(h => `<tr class="border-b hover:bg-gray-50">
+            } else { // outward
+                body.innerHTML = historySlice.map(h => `<tr class="border-b hover:bg-gray-50">
                     <td class="p-2 whitespace-nowrap">${h.date || 'N/A'}</td>
                     <td class="p-2">${h.to || 'N/A'}</td>
                     <td class="p-2">${h.dest || 'N/A'}</td>
@@ -1055,6 +1242,189 @@
         function updateDashboardStats() {
             document.getElementById('stat-hubs').innerText = hubs.length;
             // stat-value and stat-items are updated inside renderInventory()
+        }
+        
+        // --- Print Functions (Simulation) ---
+        
+        function printGatePass() {
+            const hub = document.getElementById('gpHub').value;
+            const dest = document.getElementById('gpDestination').value;
+            const requester = document.getElementById('gpRequester').value;
+            const items = document.getElementById('gpItems').value;
+            
+            if (!hub || !dest || !requester || !items) {
+                return toast("Please fill all required fields for Gate Pass generation.", "error");
+            }
+            
+            // In a real application, this would trigger a PDF generation API call.
+            toast("Gate Pass generation request simulated. Document ready for printing.", "success");
+            document.getElementById('gatePassForm').reset();
+            updateDropdowns(); // Re-select Hub dropdown defaults
+        }
+
+        function printRDC() {
+            const hub = document.getElementById('rdcHub').value;
+            const dest = document.getElementById('rdcDestination').value;
+            const returnDate = document.getElementById('rdcReturnDate').value;
+            const items = document.getElementById('rdcItems').value;
+
+            if (!hub || !dest || !returnDate || !items) {
+                return toast("Please fill all required fields for RDC generation.", "error");
+            }
+            
+            // In a real application, this would trigger a PDF generation API call.
+            toast(`Returnable Delivery Challan (RDC) for ${dest} simulated. Return Date: ${returnDate}`, "success");
+            document.getElementById('rdcForm').reset();
+            setDefaultDate();
+            updateDropdowns(); // Re-select Hub dropdown defaults
+        }
+
+
+        // --- Export Utility Functions ---
+
+        function downloadCsv(headers, rows, filename) {
+            let csv = [];
+            csv.push(headers.map(h => `"${h}"`).join(','));
+            rows.forEach(row => {
+                csv.push(row.map(cell => {
+                    let text = String(cell).trim().replace(/"/g, '""');
+                    // Remove currency symbols/formatting for clean numbers
+                    text = text.replace(/₹|,/g, '').trim(); 
+                    return `"${text}"`;
+                }).join(','));
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast("Export started successfully.");
+        }
+
+        function exportInwardHistory() {
+            const filteredData = filterHistory(inwardHistory, 'inward');
+            
+            if (filteredData.length === 0) return toast("No data to export in this range.", "error");
+
+            const csvHeaders = ['Date', 'Type', 'Source Info', 'Hub Name', 'Item Count'];
+            const csvRows = filteredData.map(h => [
+                h.date || '',
+                h.type || '',
+                h.sourceInfo || '',
+                h.hubName || '',
+                h.items || 0
+            ]);
+            
+            downloadCsv(csvHeaders, csvRows, 'redcliffe_inward_history.csv');
+        }
+
+        function exportOutwardHistory() {
+            const filteredData = filterHistory(outwardHistory, 'outward');
+            
+            if (filteredData.length === 0) return toast("No data to export in this range.", "error");
+
+            const csvHeaders = ['Date', 'To Type', 'Destination Name/Code', 'Requested By', 'Issuing Hub', 'Item Count'];
+            const csvRows = filteredData.map(h => [
+                h.date || '',
+                h.to || '',
+                h.dest || '',
+                h.req || '',
+                h.hub || '',
+                h.items || 0
+            ]);
+            
+            downloadCsv(csvHeaders, csvRows, 'redcliffe_outward_history.csv');
+        }
+
+        function exportExpenseLedger() {
+            const filteredData = filterHistory(expenseLedger, 'expense');
+            
+            if (filteredData.length === 0) return toast("No data to export in this range.", "error");
+
+            const csvHeaders = ['Date', 'Hub ID', 'Hub Name', 'Invoice Ref/Link', 'Category', 'Description', 'From Address', 'To Address', 'Amount (INR)', 'Staff Code'];
+            const csvRows = filteredData.map(e => [
+                e.date,
+                e.hubId,
+                e.hubName,
+                e.invoiceId,
+                e.category,
+                e.description,
+                e.fromAddress,
+                e.toAddress,
+                e.amount,
+                e.staffCode
+            ]);
+            
+            downloadCsv(csvHeaders, csvRows, 'redcliffe_expense_ledger.csv');
+        }
+        
+        function exportInventory() {
+            const filter = document.getElementById('inventoryHubFilter').value;
+            const isAllHubsView = (filter === 'all' || filter === ''); 
+            const filename = isAllHubsView ? 'redcliffe_inventory_all_hubs.csv' : `redcliffe_inventory_${hubs.find(h=>h.id == filter)?.name || 'filtered'}.csv`;
+
+            let dataToExport = [];
+            let csvHeaders = [];
+            
+            if (isAllHubsView) {
+                // AGGREGATED VIEW
+                const aggregatedStock = {}; 
+
+                materials.forEach(mat => {
+                    let totalQty = 0;
+                    hubs.forEach(hub => {
+                        const key = `${hub.id}_${mat.id}`;
+                        totalQty += (inventory[key] || 0);
+                    });
+                    const price = parseFloat(mat.price) || 0;
+                    const totalValue = totalQty * price;
+                    
+                    if (totalQty > 0 || materials.length < 50) { 
+                        aggregatedStock[mat.id] = { ...mat, totalQty, totalValue };
+                    }
+                });
+
+                dataToExport = Object.values(aggregatedStock).map(item => [
+                    item.name,
+                    item.category,
+                    item.totalQty,
+                    item.uom,
+                    item.totalValue.toFixed(2)
+                ]);
+
+                csvHeaders = ['Material', 'Category', 'Total Stock', 'UOM', 'Total Value (INR)'];
+
+            } else {
+                // DETAILED HUB VIEW
+                const hubToRender = hubs.find(h => h.id == filter);
+                if (!hubToRender) return toast("Hub not found for export.", "error");
+
+                dataToExport = materials.map(mat => {
+                    const key = `${hubToRender.id}_${mat.id}`;
+                    const qty = inventory[key] || 0;
+                    const price = parseFloat(mat.price) || 0;
+                    const val = qty * price;
+
+                    return [
+                        hubToRender.name,
+                        mat.name,
+                        mat.category,
+                        qty,
+                        mat.uom,
+                        val.toFixed(2)
+                    ];
+                });
+                
+                csvHeaders = ['Hub Name', 'Material', 'Category', 'Stock Qty', 'UOM', 'Stock Value (INR)'];
+            }
+            
+            if (dataToExport.length === 0) return toast("No inventory data found to export.", "error");
+
+            downloadCsv(csvHeaders, dataToExport, filename);
         }
 
         // Feature: UI Toggles
